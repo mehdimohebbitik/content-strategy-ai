@@ -15,7 +15,7 @@ try:
         print("خطا: متغیر محیطی GOOGLE_API_KEY پیدا نشد.")
     else:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-pro-latest')
         print("مدل Gemini با موفقیت پیکربندی شد.")
 except Exception as e:
     print(f"خطا در هنگام پیکربندی Gemini: {e}")
