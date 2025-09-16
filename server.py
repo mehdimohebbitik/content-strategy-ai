@@ -3,8 +3,7 @@ import google.generativeai as genai
 import os
 
 # ---- پیکربندی اولیه ----
-app = Flask(__name__, template_folder='templates', static_folder='templates')
-
+app = Flask(__name__, static_folder='static')
 # کلید API هوش مصنوعی گوگل (Gemini) را اینجا قرار دهید
 # امن‌ترین راه: این کلید را در متغیرهای محیطی سیستم (Environment Variables) ذخیره کنید
 try:
