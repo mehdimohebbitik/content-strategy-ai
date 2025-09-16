@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد سناریو | بر اساس بریف استراتژیک</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6d28d9; /* A deep purple */
+            --secondary-color: #4b5563;
+            --bg-color: #f3f4f6;
+            --card-bg-color: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #d1d5db;
+            --success-color: #16a34a;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container { width: 100%; max-width: 800px; }
+        .step {
+            background: var(--card-bg-color);
+            padding: 30px 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .step.active { display: block; opacity: 1; transform: translateY(0); }
+        .step-header {
+            display: flex; align-items: center; margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 15px;
+        }
+        .step-header i {
+            font-size: 24px; color: var(--primary-color); background-color: #ede9fe;
+            padding: 12px; border-radius: 50%; margin-left: 15px;
+        }
+        .step-header h2 { margin: 0; color: var(--text-color); font-size: 22px; }
+        
+        details {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+        details[open] { background-color: #fafafa; }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+        summary::marker { color: var(--primary-color); }
+
+        label {
+            display: block; margin-top: 15px; font-weight: 600; font-size: 14px;
+            color: var(--secondary-color);
+        }
+        .tooltip { font-size: 12px; color: #9ca3af; font-weight: normal; }
+        input[type="text"], input[type="color"], textarea {
+            width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px;
+            border: 1px solid var(--border-color); box-sizing: border-box; font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.2);
+        }
+        input[type="range"] { width: 100%; }
+
+        button {
+            background: var(--primary-color); color: white; padding: 12px 25px;
+            border: none; border-radius: 8px; cursor: pointer; font-size: 16px;
+            font-weight: bold; margin-top: 25px; transition: background-color 0.3s, transform 0.2s;
+            display: inline-flex; align-items: center;
+        }
+        button i { margin-right: 8px; }
+        button:hover { background-color: #5b21b6; transform: translateY(-2px); }
+
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color);
+            border-radius: 50%; width: 30px; height: 30px;
+            animation: spin 1s linear infinite; margin: 20px auto; display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #concernsList { list-style-type: none; padding: 0; }
+        #concernsList li {
+            background-color: #f3f4f6; padding: 15px; border-radius: 8px;
+            margin-bottom: 10px; display: flex; align-items: center;
+        }
+        #concernsList li i { color: var(--success-color); margin-left: 12px; }
+
+        #scenarioResult {
+            background-color: #111827; color: #e5e7eb; padding: 20px;
+            border-radius: 8px; white-space: pre-wrap; text-align: right;
+            line-height: 1.8; font-size: 15px;
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- مرحله اول: ورود اطلاعات برند -->
+        <div id="step1" class="step active">
+            <div class="step-header">
+                <i class="fa-solid fa-file-signature"></i>
+                <h2>مرحله ۱: بریف استراتژی برند شما</h2>
+            </div>
+            <p>لطفاً بریف زیر را با دقت تکمیل کنید. هرچه جزئیات بیشتری ارائه دهید، خروجی هوش مصنوعی دقیق‌تر خواهد بود.</p>
+            <form id="brandForm">
+                
+                <details open>
+                    <summary>بخش ۱: مشخصات پروژه</summary>
+                    <label for="brandName">نام برند:</label>
+                    <input type="text" id="brandName" name="1_brandName">
+                    <label for="whatYouDo">چه کاری می‌کنید؟ (یک جمله ساده)</label>
+                    <textarea id="whatYouDo" name="1_whatYouDo" rows="2"></textarea>
+                    <label for="where">کجا ارائه می‌کنید؟ (شهر/کشور/آنلاین)</label>
+                    <input type="text" id="where" name="1_where">
+                    <label for="redLines">خطِ قرمزها (اجباری‌ها):</label>
+                    <textarea id="redLines" name="1_redLines" rows="2"></textarea>
+                </details>
+
+                <details>
+                    <summary>بخش ۲: اهداف و سنجه‌ها (KPI)</summary>
+                    <label for="goals_3_6_months">۳ هدفِ ۳–۶ ماهه:</label>
+                    <textarea id="goals_3_6_months" name="2_goals_3_6_months" rows="3"></textarea>
+                    <label for="kpis">KPIهای مرتبط با هر هدف: <span class="tooltip">(شاخص قابل‌اندازه‌گیری)</span></label>
+                    <textarea id="kpis" name="2_kpis" rows="3"></textarea>
+                </details>
+
+                <details>
+                    <summary>بخش ۳: مخاطب و پرسونـا</summary>
+                    <label>جدول پرسونـا <span class="tooltip">(برای یک سگمنت اصلی)</span></label>
+                    <div class="grid">
+                        <input type="text" name="3_persona_segment" placeholder="بخش‌بندی مخاطب">
+                        <input type="text" name="3_persona_pain" placeholder="نیاز/درد اصلی">
+                        <input type="text" name="3_persona_jtbd" placeholder="Job To Be Done">
+                        <input type="text" name="3_persona_barriers" placeholder="موانع تصمیم">
+                        <input type="text" name="3_persona_channels" placeholder="کانال‌های دسترسی">
+                    </div>
+                    <label for="audienceKeywords">کلیدواژه‌های خودِ مخاطب: (۳–۵ واژه)</label>
+                    <textarea id="audienceKeywords" name="3_audienceKeywords" rows="2"></textarea>
+                </details>
+                
+                <details>
+                    <summary>بخش ۴: رقابت و جایگاه‌یابی</summary>
+                    <label for="positioningStatement">بیانیهٔ جایگاه‌یابی (Positioning):</label>
+                    <textarea id="positioningStatement" name="4_positioningStatement" rows="3" placeholder="برای [مخاطب]، [برند] در [دسته] برندی است که [فایده] ارائه می‌دهد، چون [دلیل باور]."></textarea>
+                </details>
+
+                <details>
+                    <summary>بخش ۵: هستهٔ برند</summary>
+                    <label for="brandPromise">وعدهٔ برند (Brand Promise):</label>
+                    <input type="text" id="brandPromise" name="5_brandPromise">
+                    <label for="brandPurpose">هدف/ماموریت (Purpose):</label>
+                    <input type="text" id="brandPurpose" name="5_brandPurpose">
+                    <label>شخصیت برند:</label>
+                    <div>صمیمی <input type="range" name="5_personality_friendly" min="1" max="5" value="3"> رسمی</div>
+                    <div>جسور <input type="range" name="5_personality_bold" min="1" max="5" value="3"> محتاط</div>
+                    <div>نوآور <input type="range" name="5_personality_innovative" min="1" max="5" value="3"> سنتی</div>
+                </details>
+
+                <details>
+                    <summary>بخش ۶: هویت کلامی</summary>
+                    <label for="verbal_dos">قوانین لحن (Do):</label>
+                    <textarea id="verbal_dos" name="6_verbal_dos" rows="2" placeholder="مثال: روشن و صادق بنویس."></textarea>
+                    <label for="verbal_donts">قوانین لحن (Don’t):</label>
+                    <textarea id="verbal_donts" name="6_verbal_donts" rows="2" placeholder="مثال: از اغراق و کلی‌گویی پرهیز کن."></textarea>
+                </details>
+
+                <details>
+                    <summary>بخش ۷: هویت بصری</summary>
+                     <label for="visual_style">سبک تصویر/آیکون/موشن:</label>
+                    <textarea id="visual_style" name="7_visual_style" rows="3" placeholder="عکاسی (واقع‌گرا/لایف‌استایل)، تصویرسازی (فلت/خطی)، موشن (ریتم کات، الگوی Ease)"></textarea>
+                    <div class="grid">
+                        <div>
+                            <label for="color_primary">رنگ اصلی (Primary)</label>
+                            <input type="color" id="color_primary" name="7_colorPrimary" value="#6d28d9">
+                        </div>
+                        <div>
+                             <label for="color_secondary">رنگ ثانویه (Secondary)</label>
+                            <input type="color" id="color_secondary" name="7_colorSecondary" value="#4b5563">
+                        </div>
+                    </div>
+                </details>
+
+                <button type="submit"><i class="fa-solid fa-arrow-left"></i> تحلیل دغدغه‌ها</button>
+            </form>
+        </div>
+
+        <!-- مراحل بعدی (۲ و ۳) بدون تغییر باقی می‌مانند -->
+        <div id="step2" class="step">
+            <div class="step-header">
+                <i class="fa-solid fa-magnifying-glass-chart"></i>
+                <h2>مرحله ۲: دغدغه‌های مخاطبان</h2>
+            </div>
+            <p>بر اساس بریف استراتژیک شما، هوش مصنوعی دغدغه‌های اصلی مخاطبان را شناسایی کرده است:</p>
+            <div id="loader-concerns" class="loader"></div>
+            <ul id="concernsList"></ul>
+            <button id="generateScenarioBtn"><i class="fa-solid fa-film"></i> برو به تولید سناریو</button>
+        </div>
+
+        <div id="step3" class="step">
+            <div class="step-header">
+                <i class="fa-solid fa-lightbulb"></i>
+                <h2>مرحله ۳: سناریوی ویدئویی شما</h2>
+            </div>
+            <p>این سناریو دقیقاً بر اساس پلی‌بوک شما و با هدف قرار دادن دغدغه‌های مخاطب طراحی شده است:</p>
+            <div id="loader-scenario" class="loader"></div>
+            <pre id="scenarioResult"></pre>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
