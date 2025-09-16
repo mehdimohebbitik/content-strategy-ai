@@ -1,30 +1,39 @@
-# کد جدید و کامل برای server.py
 from flask import Flask, request, jsonify, render_template
-import google.generativeai as genai
 import os
-import traceback # این خط برای ثبت خطای دقیق‌تر اضافه شده
+import traceback
+import vertexai
+from vertexai.generative_models import GenerativeModel
 
 # ---- پیکربندی اولیه ----
 app = Flask(__name__, static_folder='static')
 
-# ---- پیکربندی مدل هوش مصنوعی ----
+# ---- پیکربندی Vertex AI ----
 model = None
 try:
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        print("خطا: متغیر محیطی GOOGLE_API_KEY پیدا نشد.")
+    # این متغیرها باید در محیط Render تنظیم شوند
+    project_id = os.environ.get("GOOGLE_PROJECT_ID")
+    location = os.environ.get("GOOGLE_REGION", "us-central1") # یک منطقه پیش‌فرض
+
+    if not project_id:
+        print("خطا: متغیر محیطی GOOGLE_PROJECT_ID پیدا نشد.")
     else:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-pro-latest')
-        print("مدل Gemini با موفقیت پیکربندی شد.")
+        # فایل کلید به صورت خودکار توسط Render خوانده می‌شود
+        # نیازی به مشخص کردن مسیر فایل نیست
+        vertexai.init(project=project_id, location=location)
+        # از مدل جدیدتر و قدرتمندتر Gemini 1.5 Flash استفاده می‌کنیم
+        model = GenerativeModel("gemini-1.5-flash-001") 
+        print(f"Vertex AI با موفقیت برای پروژه '{project_id}' پیکربندی شد.")
+
 except Exception as e:
-    print(f"خطا در هنگام پیکربندی Gemini: {e}")
+    print(f"!!! خطا در هنگام پیکربندی Vertex AI: {e} !!!")
+    traceback.print_exc()
 
 
 # ---- پلی‌بوک محتوا (بدون تغییر) ----
+# ... (محتوای کامل پلی‌بوک شما باید اینجا باشد) ...
 CONTENT_PLAYBOOK = """
 Playbook تولید محتوا
-... (تمام متن پلی‌بوک شما اینجا قرار دارد) ...
+...
 """
 
 # ---- روت‌های برنامه ----
@@ -35,44 +44,30 @@ def index():
 
 @app.route('/generate-concerns', methods=['POST'])
 def generate_concerns():
-    print("\n--- درخواست جدید برای /generate-concerns دریافت شد ---")
+    print("\n--- درخواست جدید (Vertex AI) برای /generate-concerns دریافت شد ---")
     if not model:
-        print("خطای داخلی: مدل هوش مصنوعی در دسترس نیست.")
-        return jsonify({'error': 'مدل هوش مصنوعی به درستی پیکربندی نشده است.'}), 500
+        return jsonify({'error': 'مدل Vertex AI به درستی پیکربندی نشده است.'}), 500
     try:
         brand_info = request.json
-        print("اطلاعات برند از درخواست استخراج شد.")
+        prompt = f"شما یک استراتژیست برند هستید. بر اساس بریف زیر، ۵ دغدغه اصلی مخاطبان را لیست کنید.\nبریف: {brand_info}"
         
-        prompt = f"""
-        شما یک استراتژیست ارشد برند هستید. بر اساس بریف استراتژی زیر، ۵ دغدغه اصلی مخاطبان را لیست کنید.
-        بریف: {brand_info}
-        """
-        
-        print("در حال ارسال درخواست به API گوگل...")
+        print("در حال ارسال درخواست به Vertex AI...")
         response = model.generate_content(prompt)
-        print("پاسخ از API گوگل دریافت شد.")
+        print("پاسخ از Vertex AI دریافت شد.")
         
-        # بررسی اینکه آیا پاسخ به دلیل فیلتر ایمنی مسدود شده است یا خیر
-        if not response.parts:
-            block_reason = response.prompt_feedback.block_reason
-            print(f"درخواست توسط فیلتر ایمنی گوگل مسدود شد. دلیل: {block_reason}")
-            error_msg = f"محتوای ارسالی شما توسط فیلتر ایمنی گوگل مسدود شد. دلیل: {block_reason}"
-            return jsonify({'error': error_msg}), 400
-
         return jsonify({'concerns': response.text})
         
     except Exception as e:
         print("!!! یک خطای پیش‌بینی نشده در /generate-concerns رخ داد !!!")
-        # ثبت کامل خطا در لاگ
         traceback.print_exc()
         return jsonify({'error': f'خطای داخلی سرور: {str(e)}'}), 500
 
+# ... (بخش /generate-scenario بدون تغییر باقی می‌ماند، فقط از مدل جدید استفاده می‌کند) ...
 @app.route('/generate-scenario', methods=['POST'])
 def generate_scenario():
-    print("\n--- درخواست جدید برای /generate-scenario دریافت شد ---")
+    print("\n--- درخواست جدید (Vertex AI) برای /generate-scenario دریافت شد ---")
     if not model:
-        print("خطای داخلی: مدل هوش مصنوعی در دسترس نیست.")
-        return jsonify({'error': 'مدل هوش مصنوعی به درستی پیکربندی نشده است.'}), 500
+        return jsonify({'error': 'مدل Vertex AI به درستی پیکربندی نشده است.'}), 500
     try:
         data = request.json
         brand_info = data['brandInfo']
@@ -85,23 +80,26 @@ def generate_scenario():
         پلی‌بوک: {CONTENT_PLAYBOOK}
         """
         
-        print("در حال ارسال درخواست سناریو به API گوگل...")
+        print("در حال ارسال درخواست سناریو به Vertex AI...")
         response = model.generate_content(prompt)
-        print("پاسخ سناریو از API گوگل دریافت شد.")
-
-        if not response.parts:
-            block_reason = response.prompt_feedback.block_reason
-            print(f"درخواست توسط فیلتر ایمنی گوگل مسدود شد. دلیل: {block_reason}")
-            error_msg = f"محتوای ارسالی شما توسط فیلتر ایمنی گوگل مسدود شد. دلیل: {block_reason}"
-            return jsonify({'error': error_msg}), 400
-
+        print("پاسخ سناریو از Vertex AI دریافت شد.")
+        
         return jsonify({'scenario': response.text})
-
     except Exception as e:
         print("!!! یک خطای پیش‌بینی نشده در /generate-scenario رخ داد !!!")
         traceback.print_exc()
         return jsonify({'error': f'خطای داخلی سرور: {str(e)}'}), 500
 
-# برای اجرای سرور
+
 if __name__ == '__main__':
     app.run(debug=True)
+```
+
+#### قدم پنجم: به‌روزرسانی نیازمندی‌ها و متغیرها در Render
+
+1.  به داشبورد پروژه در Render برگردید و به تب **"Settings"** بروید.
+2.  در بخش **"Build Command"**، دستور را به شکل زیر آپدیت کنید تا کتابخانه‌های جدید نصب شوند:
+    ```
+    pip install Flask gunicorn "google-cloud-aiplatform>=1.38"
+    
+
